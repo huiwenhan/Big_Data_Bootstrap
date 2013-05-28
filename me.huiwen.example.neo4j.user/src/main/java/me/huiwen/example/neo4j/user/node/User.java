@@ -1,8 +1,3 @@
-/** 
- * IBM Confidential
- * IBM CIO WebAhead Steer
- * Copyright IBM Corp. 2009
- */
 package me.huiwen.example.neo4j.user.node;
 
 
