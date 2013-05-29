@@ -119,6 +119,9 @@
   	<module>../me.huiwen.example.hadoop.wordcount</module>
   	<module>../me.huiwen.example.hbase.example1</module>
   	<module>../me.huiwen.example.neo4j.example1</module>
+  	<module>
+  		me.huiwen.example.weka.linearRegression.housePrices
+  	</module>
   </modules>
 </project>
 

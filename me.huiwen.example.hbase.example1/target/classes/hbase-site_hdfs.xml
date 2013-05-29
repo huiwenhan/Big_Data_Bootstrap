@@ -5,7 +5,7 @@
 
 <property>
 <name>hbase.rootdir</name>
-<value>hdfs://dpev210.innovate.ibm.com:9100/hbase</value>
+<value>hdfs://dpev210.innovate.sfb.com:9100/hbase</value>
 <description></description>
 </property>
 <property>
@@ -23,7 +23,7 @@ The directory where the snapshot is stored.
 
 <property>
 <name>hbase.zookeeper.quorum</name>
-<value>dpev210.innovate.ibm.com</value>
+<value>dpev210.innovate.sfb.com</value>
 </property>
 
 <property>

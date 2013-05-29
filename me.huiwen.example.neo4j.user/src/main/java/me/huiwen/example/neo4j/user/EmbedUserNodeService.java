@@ -125,6 +125,10 @@ public class EmbedUserNodeService extends UserNodeService {
 	
 	public static void main(String[] argv)
 	{
+		//周迅前男友窦鹏是窦唯堂弟，窦唯是王菲前老公。周迅前男友宋宁是高原的表弟，高原是窦唯现任老婆，窦唯是王菲前老公。
+		//周迅前男友李亚鹏是王菲现任老公。周迅前男友朴树的音乐制作人是张亚东,张亚东是王菲的前老公窦唯的妹妹窦颖的前老公，
+		//也是王菲的音乐制作人。张亚东是李亚鹏前女友瞿颖现男友。周迅现在的男朋友是王朔，王朔的后妈是晴格格王艳
+		
 		EmbedUserNodeService service = new EmbedUserNodeService();
 		service.setGraphDir("./data/user");
 		try {
