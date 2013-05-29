@@ -2,10 +2,14 @@ Big_data_example
 ================
 A few Big Data  and Analytics examples,including :
 
-Hadoop
+Hadoop,
 
-HBase
+HBase,
 
-Neo4j
+Neo4j,
 
-WEKA
+WEKA,
+
+Voldemort,
+
+MongoDB.
