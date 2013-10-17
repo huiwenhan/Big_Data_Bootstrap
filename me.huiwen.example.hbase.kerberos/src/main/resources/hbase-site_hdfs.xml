@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+
+<property>
+<name>hbase.rootdir</name>
+<value>hdfs://dpev210.innovate.sfb.com:9100/hbase</value>
+<description></description>
+</property>
+<property>
+<name>hbase.cluster.distributed</name>
+<value>true</value>
+</property>
+
+<property>
+<name>hbase.zookeeper.property.dataDir</name>
+<value>/opt/zookeeper/data</value>
+<description>Property from ZooKeeper"s config zoo.cfg.
+The directory where the snapshot is stored.
+</description>
+</property>
+
+<property>
+<name>hbase.zookeeper.quorum</name>
+<value>dpev210.innovate.sfb.com</value>
+</property>
+
+<property>
+<name>hbase.zookeeper.property.clientPort</name>
+<value>2181</value>
+</property>
+
+
+</configuration>

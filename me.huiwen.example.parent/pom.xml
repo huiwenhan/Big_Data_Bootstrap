@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>me.huiwen.example</groupId>
@@ -120,8 +121,11 @@
   	<module>../me.huiwen.example.hbase.example1</module>
   	<module>../me.huiwen.example.neo4j.example1</module>
   	<module>
-  		me.huiwen.example.weka.linearRegression.housePrices
+  		../me.huiwen.example.weka.linearRegression.housePrices
   	</module>
+  	<module>../me.huiwen.example.hbase.kerberos</module>
+ 
+    <module>../me.huiwen.example.redis.microblog</module>
+    <module>../me.huiwen.example.voldemort.recommendation</module>
   </modules>
 </project>
-
