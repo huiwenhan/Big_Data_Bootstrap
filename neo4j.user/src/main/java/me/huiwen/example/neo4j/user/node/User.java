@@ -8,7 +8,6 @@ package me.huiwen.example.neo4j.user.node;
  * 
  */
 public class User {
-	private static final long serialVersionUID = -386635962736809811L;
 	private String name;
 
 	public User() {

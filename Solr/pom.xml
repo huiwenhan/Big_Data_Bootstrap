@@ -1,8 +1,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>me.huiwen.example.spark</groupId>
-	<artifactId>me.huiwen.example.spark.wordcount</artifactId>
+	<groupId>me.huiwen.example.solr</groupId>
+	<artifactId>me.huiwen.example.solr.sample</artifactId>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
@@ -15,23 +15,10 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<dependencies>
-		<dependency> <!-- Spark dependency -->
-			<groupId>org.apache.spark</groupId>
-			<artifactId>spark-core_2.10</artifactId>
-			<version>0.9.1</version>
-		</dependency>
 		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-client</artifactId>
-			<version>...</version>
+			<groupId>org.apache.solr</groupId>
+			<artifactId>solr-solrj</artifactId>
+			<version>4.1.0</version>
 		</dependency>
 	</dependencies>
-</project>
-<repositories>
-	<repository>
-		<id>Akka repository</id>
-		<url>http://repo.akka.io/releases</url>
-	</repository>
-</repositories>
-
 </project>

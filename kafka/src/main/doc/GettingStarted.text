@@ -1,0 +1,397 @@
+
+
+Browse
+Pages
+Blog
+Labels
+Attachments
+Bookmarks
+Mail
+Advanced
+What＊s New
+Space Directory
+Keyboard Shortcuts
+Confluence Gadgets
+Log InSign Up
+Dashboard
+Apache Hive
+GettingStarted
+Tools
+Attachments (0)
+Page History
+Restrictions
+Info
+Link to this Page＃
+View in Hierarchy
+View Wiki Markup
+ GettingStarted
+Added by Confluence Administrator, last edited by Lefty Leverenz on Oct 01, 2013  (view change) show comment
+Table of Contents
+
+Installation and Configuration
+Requirements
+Installing Hive from a Stable Release
+Building Hive from Source
+Compile hive on hadoop 23
+Running Hive
+Running HCatalog
+Running WebHCat (Templeton)
+Configuration management overview
+Runtime configuration
+Hive, Map-Reduce and Local-Mode
+Error Logs
+DDL Operations
+Creating Hive Tables
+Browsing through Tables
+Altering and Dropping Tables
+Metadata Store
+DML Operations
+SQL Operations
+Example Queries
+SELECTS and FILTERS
+GROUP BY
+JOIN
+MULTITABLE INSERT
+STREAMING
+Simple Example Use Cases
+MovieLens User Ratings
+Apache Weblog Data
+DISCLAIMER: Hive has only been tested on unix(linux) and mac systems using Java 1.6 for now 每
+although it may very well work on other similar platforms. It does not work on Cygwin.
+
+Installation and Configuration
+Requirements
+Java 1.6
+Hadoop 0.20.x.
+Installing Hive from a Stable Release
+Start by downloading the most recent stable release of Hive from one of the Apache download mirrors (see Hive Releases).
+
+Next you need to unpack the tarball. This will result in the creation of a subdirectory named hive-x.y.z:
+
+  $ tar -xzvf hive-x.y.z.tar.gz
+Set the environment variable HIVE_HOME to point to the installation directory:
+
+  $ cd hive-x.y.z
+  $ export HIVE_HOME={{pwd}}
+Finally, add $HIVE_HOME/bin to your PATH:
+
+  $ export PATH=$HIVE_HOME/bin:$PATH
+Building Hive from Source
+The Hive SVN repository is located here: http://svn.apache.org/repos/asf/hive/trunk
+
+  $ svn co http://svn.apache.org/repos/asf/hive/trunk hive
+  $ cd hive
+  $ ant clean package
+  $ cd build/dist
+  $ ls
+  README.txt
+  bin/ (all the shell scripts)
+  lib/ (required jar files)
+  conf/ (configuration files)
+  examples/ (sample input and query files)
+In the rest of the page we use build/dist and <install-dir> interchangeably.
+
+Compile hive on hadoop 23
+  $ svn co http://svn.apache.org/repos/asf/hive/trunk hive
+  $ cd hive
+  $ ant clean package -Dhadoop.version=0.23.3 -Dhadoop-0.23.version=0.23.3 -Dhadoop.mr.rev=23
+  $ ant clean package -Dhadoop.version=2.0.0-alpha -Dhadoop-0.23.version=2.0.0-alpha -Dhadoop.mr.rev=23
+Running Hive
+Hive uses hadoop, so:
+
+you must have hadoop in your path OR
+export HADOOP_HOME=<hadoop-install-dir>
+In addition, you must create /tmp and /user/hive/warehouse (aka hive.metastore.warehouse.dir) and set them chmod g+w in HDFS before you can create a table in Hive.
+
+Commands to perform this setup:
+
+  $ $HADOOP_HOME/bin/hadoop fs -mkdir       /tmp
+  $ $HADOOP_HOME/bin/hadoop fs -mkdir       /user/hive/warehouse
+  $ $HADOOP_HOME/bin/hadoop fs -chmod g+w   /tmp
+  $ $HADOOP_HOME/bin/hadoop fs -chmod g+w   /user/hive/warehouse
+You may find it useful, though it's not necessary, to set HIVE_HOME:
+
+  $ export HIVE_HOME=<hive-install-dir>
+To use the hive command line interface (cli) from the shell:
+
+  $ $HIVE_HOME/bin/hive
+Running HCatalog
+To run the HCatalog server from the shell in Hive release 0.11.0 and later:
+
+  $ $HIVE_HOME/hcatalog/sbin/hcat_server.sh
+To use the HCatalog command line interface (cli) in Hive release 0.11.0 and later:
+
+  $ $HIVE_HOME/hcatalog/bin/hcat
+For more information, see HCatalog Installation from Tarball and HCatalog CLI in the HCatalog manual.
+
+Running WebHCat (Templeton)
+To run the WebHCat server from the shell in Hive release 0.11.0 and later:
+
+  $ $HIVE_HOME/hcatalog/sbin/webhcat_server.sh
+For more information, see WebHCat Installation in the WebHCat manual.
+
+Configuration management overview
+Hive by default gets its configuration from <install-dir>/conf/hive-default.xml
+The location of the Hive configuration directory can be changed by setting the HIVE_CONF_DIR environment variable.
+Configuration variables can be changed by (re-)defining them in <install-dir>/conf/hive-site.xml
+Log4j configuration is stored in <install-dir>/conf/hive-log4j.properties
+Hive configuration is an overlay on top of hadoop 每 it inherits the hadoop configuration variables by default.
+Hive configuration can be manipulated by:
+Editing hive-site.xml and defining any desired variables (including hadoop variables) in it
+From the cli using the set command (see below)
+Invoking hive using the syntax:
+$ bin/hive -hiveconf x1=y1 -hiveconf x2=y2
+this sets the variables x1 and x2 to y1 and y2 respectively
+Setting the HIVE_OPTS environment variable to "-hiveconf x1=y1 -hiveconf x2=y2" which does the same as above.
+Runtime configuration
+Hive queries are executed using map-reduce queries and, therefore, the behavior of such queries can be controlled by the hadoop configuration variables.
+The cli command 'SET' can be used to set any hadoop (or hive) configuration variable. For example:
+    hive> SET mapred.job.tracker=myhost.mycompany.com:50030;
+    hive> SET -v;
+The latter shows all the current settings. Without the -v option only the variables that differ from the base hadoop configuration are displayed.
+Hive, Map-Reduce and Local-Mode
+Hive compiler generates map-reduce jobs for most queries. These jobs are then submitted to the Map-Reduce cluster indicated by the variable:
+
+  mapred.job.tracker
+While this usually points to a map-reduce cluster with multiple nodes, Hadoop also offers a nifty option to run map-reduce jobs locally on the user's workstation. This can be very useful to run queries over small data sets 每 in such cases local mode execution is usually significantly faster than submitting jobs to a large cluster. Data is accessed transparently from HDFS. Conversely, local mode only runs with one reducer and can be very slow processing larger data sets.
+
+Starting v-0.7, Hive fully supports local mode execution. To enable this, the user can enable the following option:
+
+  hive> SET mapred.job.tracker=local;
+In addition, mapred.local.dir should point to a path that's valid on the local machine (for example /tmp/<username>/mapred/local). (Otherwise, the user will get an exception allocating local disk space.)
+
+Starting v-0.7, Hive also supports a mode to run map-reduce jobs in local-mode automatically. The relevant options are hive.exec.mode.local.auto, hive.exec.mode.local.auto.inputbytes.max, and hive.exec.mode.local.auto.tasks.max:
+
+  hive> SET hive.exec.mode.local.auto=false;
+Note that this feature is disabled by default. If enabled, Hive analyzes the size of each map-reduce job in a query and may run it locally if the following thresholds are satisfied:
+
+The total input size of the job is lower than: hive.exec.mode.local.auto.inputbytes.max (128MB by default)
+The total number of map-tasks is less than: hive.exec.mode.local.auto.tasks.max (4 by default)
+The total number of reduce tasks required is 1 or 0.
+So for queries over small data sets, or for queries with multiple map-reduce jobs where the input to subsequent jobs is substantially smaller (because of reduction/filtering in the prior job), jobs may be run locally.
+
+Note that there may be differences in the runtime environment of hadoop server nodes and the machine running the hive client (because of different jvm versions or different software libraries). This can cause unexpected behavior/errors while running in local mode. Also note that local mode execution is done in a separate, child jvm (of the hive client). If the user so wishes, the maximum amount of memory for this child jvm can be controlled via the option hive.mapred.local.mem. By default, it's set to zero, in which case Hive lets Hadoop determine the default memory limits of the child jvm.
+
+Error Logs
+Hive uses log4j for logging. By default logs are not emitted to the console by the CLI. The default logging level is WARN and the logs are stored in the folder:
+
+/tmp/<user.name>/hive.log
+If the user wishes 每 the logs can be emitted to the console by adding the arguments shown below:
+
+bin/hive -hiveconf hive.root.logger=INFO,console
+Alternatively, the user can change the logging level only by using:
+
+bin/hive -hiveconf hive.root.logger=INFO,DRFA
+Note that setting hive.root.logger via the 'set' command does not change logging properties since they are determined at initialization time.
+
+Hive also stores query logs on a per hive session basis in /tmp/<user.name>/, but can be configured in hive-site.xml with the hive.querylog.location property.
+
+Logging during Hive execution on a Hadoop cluster is controlled by Hadoop configuration. Usually Hadoop will produce one log file per map and reduce task stored on the cluster machine(s) where the task was executed. The log files can be obtained by clicking through to the Task Details page from the Hadoop JobTracker Web UI.
+
+When using local mode (using mapred.job.tracker=local), Hadoop/Hive execution logs are produced on the client machine itself. Starting v-0.6 每 Hive uses the hive-exec-log4j.properties (falling back to hive-log4j.properties only if it's missing) to determine where these logs are delivered by default. The default configuration file produces one log file per query executed in local mode and stores it under /tmp/<user.name>. The intent of providing a separate configuration file is to enable administrators to centralize execution log capture if desired (on a NFS file server for example). Execution logs are invaluable for debugging run-time errors.
+
+Error logs are very useful to debug problems. Please send them with any bugs (of which there are many!) to hive-dev@hadoop.apache.org.
+
+DDL Operations
+Creating Hive Tables
+  hive> CREATE TABLE pokes (foo INT, bar STRING);
+creates a table called pokes with two columns, the first being an integer and the other a string.
+
+  hive> CREATE TABLE invites (foo INT, bar STRING) PARTITIONED BY (ds STRING);
+creates a table called invites with two columns and a partition column called ds. The partition column is a virtual column. It is not part of the data itself but is derived from the partition that a particular dataset is loaded into.
+
+By default, tables are assumed to be of text input format and the delimiters are assumed to be ^A(ctrl-a).
+
+Browsing through Tables
+  hive> SHOW TABLES;
+lists all the tables.
+
+  hive> SHOW TABLES '.*s';
+lists all the table that end with 's'. The pattern matching follows Java regular expressions. Check out this link for documentation http://java.sun.com/javase/6/docs/api/java/util/regex/Pattern.html.
+
+hive> DESCRIBE invites;
+shows the list of columns.
+
+Altering and Dropping Tables
+Table names can be changed and columns can be added or replaced:
+
+  hive> ALTER TABLE events RENAME TO 3koobecaf;
+  hive> ALTER TABLE pokes ADD COLUMNS (new_col INT);
+  hive> ALTER TABLE invites ADD COLUMNS (new_col2 INT COMMENT 'a comment');
+  hive> ALTER TABLE invites REPLACE COLUMNS (foo INT, bar STRING, baz INT COMMENT 'baz replaces new_col2');
+Note that REPLACE COLUMNS replaces all existing columns and only changes the table's schema, not the data. The table must use a native SerDe. REPLACE COLUMNS can also be used to drop columns from the table's schema:
+
+  hive> ALTER TABLE invites REPLACE COLUMNS (foo INT COMMENT 'only keep the first column');
+Dropping tables:
+
+  hive> DROP TABLE pokes;
+Metadata Store
+Metadata is in an embedded Derby database whose disk storage location is determined by the hive configuration variable named javax.jdo.option.ConnectionURL. By default this location is ./metastore_db (see conf/hive-default.xml).
+
+Right now, in the default configuration, this metadata can only be seen by one user at a time.
+
+Metastore can be stored in any database that is supported by JPOX. The location and the type of the RDBMS can be controlled by the two variables javax.jdo.option.ConnectionURL and javax.jdo.option.ConnectionDriverName. Refer to JDO (or JPOX) documentation for more details on supported databases. The database schema is defined in JDO metadata annotations file package.jdo at src/contrib/hive/metastore/src/model.
+
+In the future, the metastore itself can be a standalone server.
+
+If you want to run the metastore as a network server so it can be accessed from multiple nodes, see Hive Using Derby in Server Mode.
+
+DML Operations
+Loading data from flat files into Hive:
+
+  hive> LOAD DATA LOCAL INPATH './examples/files/kv1.txt' OVERWRITE INTO TABLE pokes;
+Loads a file that contains two columns separated by ctrl-a into pokes table. 'LOCAL' signifies that the input file is on the local file system. If 'LOCAL' is omitted then it looks for the file in HDFS.
+
+The keyword 'OVERWRITE' signifies that existing data in the table is deleted. If the 'OVERWRITE' keyword is omitted, data files are appended to existing data sets.
+
+NOTES:
+
+NO verification of data against the schema is performed by the load command.
+If the file is in hdfs, it is moved into the Hive-controlled file system namespace.
+The root of the Hive directory is specified by the option hive.metastore.warehouse.dir in hive-default.xml. We advise users to create this directory before trying to create tables via Hive.
+  hive> LOAD DATA LOCAL INPATH './examples/files/kv2.txt' OVERWRITE INTO TABLE invites PARTITION (ds='2008-08-15');
+  hive> LOAD DATA LOCAL INPATH './examples/files/kv3.txt' OVERWRITE INTO TABLE invites PARTITION (ds='2008-08-08');
+The two LOAD statements above load data into two different partitions of the table invites. Table invites must be created as partitioned by the key ds for this to succeed.
+
+  hive> LOAD DATA INPATH '/user/myname/kv2.txt' OVERWRITE INTO TABLE invites PARTITION (ds='2008-08-15');
+The above command will load data from an HDFS file/directory to the table.
+Note that loading data from HDFS will result in moving the file/directory. As a result, the operation is almost instantaneous.
+
+SQL Operations
+Example Queries
+Some example queries are shown below. They are available in build/dist/examples/queries.
+More are available in the hive sources at ql/src/test/queries/positive.
+
+SELECTS and FILTERS
+  hive> SELECT a.foo FROM invites a WHERE a.ds='2008-08-15';
+selects column 'foo' from all rows of partition ds=2008-08-15 of the invites table. The results are not stored anywhere, but are displayed on the console.
+
+Note that in all the examples that follow, INSERT (into a hive table, local directory or HDFS directory) is optional.
+
+  hive> INSERT OVERWRITE DIRECTORY '/tmp/hdfs_out' SELECT a.* FROM invites a WHERE a.ds='2008-08-15';
+selects all rows from partition ds=2008-08-15 of the invites table into an HDFS directory. The result data is in files (depending on the number of mappers) in that directory.
+NOTE: partition columns if any are selected by the use of *. They can also be specified in the projection clauses.
+
+Partitioned tables must always have a partition selected in the WHERE clause of the statement.
+
+  hive> INSERT OVERWRITE LOCAL DIRECTORY '/tmp/local_out' SELECT a.* FROM pokes a;
+selects all rows from pokes table into a local directory.
+
+  hive> INSERT OVERWRITE TABLE events SELECT a.* FROM profiles a;
+  hive> INSERT OVERWRITE TABLE events SELECT a.* FROM profiles a WHERE a.key < 100;
+  hive> INSERT OVERWRITE LOCAL DIRECTORY '/tmp/reg_3' SELECT a.* FROM events a;
+  hive> INSERT OVERWRITE DIRECTORY '/tmp/reg_4' select a.invites, a.pokes FROM profiles a;
+  hive> INSERT OVERWRITE DIRECTORY '/tmp/reg_5' SELECT COUNT(*) FROM invites a WHERE a.ds='2008-08-15';
+  hive> INSERT OVERWRITE DIRECTORY '/tmp/reg_5' SELECT a.foo, a.bar FROM invites a;
+  hive> INSERT OVERWRITE LOCAL DIRECTORY '/tmp/sum' SELECT SUM(a.pc) FROM pc1 a;
+selects the sum of a column. The avg, min, or max can also be used. Note that for versions of Hive which don't include HIVE-287, you'll need to use COUNT(1) in place of COUNT(*).
+
+GROUP BY
+  hive> FROM invites a INSERT OVERWRITE TABLE events SELECT a.bar, count(*) WHERE a.foo > 0 GROUP BY a.bar;
+  hive> INSERT OVERWRITE TABLE events SELECT a.bar, count(*) FROM invites a WHERE a.foo > 0 GROUP BY a.bar;
+Note that for versions of Hive which don't include HIVE-287, you'll need to use COUNT(1) in place of COUNT(*).
+
+JOIN
+  hive> FROM pokes t1 JOIN invites t2 ON (t1.bar = t2.bar) INSERT OVERWRITE TABLE events SELECT t1.bar, t1.foo, t2.foo;
+MULTITABLE INSERT
+  FROM src
+  INSERT OVERWRITE TABLE dest1 SELECT src.* WHERE src.key < 100
+  INSERT OVERWRITE TABLE dest2 SELECT src.key, src.value WHERE src.key >= 100 and src.key < 200
+  INSERT OVERWRITE TABLE dest3 PARTITION(ds='2008-04-08', hr='12') SELECT src.key WHERE src.key >= 200 and src.key < 300
+  INSERT OVERWRITE LOCAL DIRECTORY '/tmp/dest4.out' SELECT src.value WHERE src.key >= 300;
+STREAMING
+  hive> FROM invites a INSERT OVERWRITE TABLE events SELECT TRANSFORM(a.foo, a.bar) AS (oof, rab) USING '/bin/cat' WHERE a.ds > '2008-08-09';
+This streams the data in the map phase through the script /bin/cat (like hadoop streaming).
+Similarly 每 streaming can be used on the reduce side (please see the Hive Tutorial for examples).
+
+Simple Example Use Cases
+MovieLens User Ratings
+First, create a table with tab-delimited text file format:
+
+CREATE TABLE u_data (
+  userid INT,
+  movieid INT,
+  rating INT,
+  unixtime STRING)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\t'
+STORED AS TEXTFILE;
+Then, download and extract the data files:
+
+wget http://www.grouplens.org/sites/www.grouplens.org/external_files/data/ml-data.tar.gz
+tar xvzf ml-data.tar.gz
+And load it into the table that was just created:
+
+LOAD DATA LOCAL INPATH 'ml-data/u.data'
+OVERWRITE INTO TABLE u_data;
+Count the number of rows in table u_data:
+
+SELECT COUNT(*) FROM u_data;
+Note that for versions of Hive which don't include HIVE-287, you'll need to use COUNT(1) in place of COUNT(*).
+
+Now we can do some complex data analysis on the table u_data:
+
+Create weekday_mapper.py:
+
+import sys
+import datetime
+
+for line in sys.stdin:
+  line = line.strip()
+  userid, movieid, rating, unixtime = line.split('\t')
+  weekday = datetime.datetime.fromtimestamp(float(unixtime)).isoweekday()
+  print '\t'.join([userid, movieid, rating, str(weekday)])
+Use the mapper script:
+
+CREATE TABLE u_data_new (
+  userid INT,
+  movieid INT,
+  rating INT,
+  weekday INT)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\t';
+
+add FILE weekday_mapper.py;
+
+INSERT OVERWRITE TABLE u_data_new
+SELECT
+  TRANSFORM (userid, movieid, rating, unixtime)
+  USING 'python weekday_mapper.py'
+  AS (userid, movieid, rating, weekday)
+FROM u_data;
+
+SELECT weekday, COUNT(*)
+FROM u_data_new
+GROUP BY weekday;
+Note that if you're using Hive 0.5.0 or earlier you will need to use COUNT(1) in place of COUNT(*).
+
+Apache Weblog Data
+The format of Apache weblog is customizable, while most webmasters use the default.
+For default Apache weblog, we can create a table with the following command.
+
+More about !RegexSerDe can be found here: http://issues.apache.org/jira/browse/HIVE-662.
+
+add jar ../build/contrib/hive_contrib.jar;
+
+CREATE TABLE apachelog (
+  host STRING,
+  identity STRING,
+  user STRING,
+  time STRING,
+  request STRING,
+  status STRING,
+  size STRING,
+  referer STRING,
+  agent STRING)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.contrib.serde2.RegexSerDe'
+WITH SERDEPROPERTIES (
+  "input.regex" = "([^]*) ([^]*) ([^]*) (-|\\[^\\]*\\]) ([^ \"]*|\"[^\"]*\") (-|[0-9]*) (-|[0-9]*)(?: ([^ \"]*|\".*\") ([^ \"]*|\".*\"))?",
+  "output.format.string" = "%1$s %2$s %3$s %4$s %5$s %6$s %7$s %8$s %9$s"
+)
+STORED AS TEXTFILE;
+Labels:
+None
+
+Powered by a free Atlassian Confluence Open Source Project License granted to Apache Software Foundation. Evaluate Confluence today.
+This Confluence installation runs a Free Gliffy License - Evaluate the Gliffy Confluence Plugin for your Wiki!
+Powered by Atlassian Confluence 3.5.17, the Enterprise Wiki   |  Report a bug  |  Atlassian News
