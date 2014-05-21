@@ -23,7 +23,12 @@
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hadoop-client</artifactId>
-			<version>...</version>
+			<version>1.0.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+			<version>2.10.2</version>
 		</dependency>
 	</dependencies>
 </project>
@@ -33,5 +38,11 @@
 		<url>http://repo.akka.io/releases</url>
 	</repository>
 </repositories>
-
+<pluginRepositories>
+	<pluginRepository>
+		<id>scala-tools.org</id>
+		<name>Scala-tools Maven2 Repository</name>
+		<url>http://scala-tools.org/repo-releases</url>
+	</pluginRepository>
+</pluginRepositories>
 </project>
